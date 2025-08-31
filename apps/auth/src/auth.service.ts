@@ -1,46 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
 import { User } from './users/schemas/user.schema';
-import { LoginResponseDto } from './dtos/login-response.dto';
 import { UserResponseDto } from './users/dto/use-created-response.dto';
-
-export interface TokenPayload {
-  userId: string;
-}
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(user: User, response: Response) {
-    const tokenPayload: TokenPayload = {
-      userId: user._id.toHexString(),
-    };
+  async getTokens(user: User) {
+    const payload = { sub: user._id.toString(), email: user.email };
 
-    const expires = new Date();
-    expires.setSeconds(
-      expires.getSeconds() + Number(this.configService.get('JWT_EXPIRATION')),
-    );
-
-    const token = await this.jwtService.signAsync(tokenPayload);
-
-    response.cookie('Authentication', token, {
-      httpOnly: true,
-      expires,
+    this.logger.log('payload: ', JSON.stringify(payload));
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_EXPIRATION') || '15m',
     });
 
-    return new LoginResponseDto(token, expires, new UserResponseDto(user));
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      expiresIn:
+        this.configService.get<string>('JWT_REFRESH_EXPIRATION') || '7d',
+    });
+
+    return { accessToken, refreshToken };
   }
 
-  logout(response: Response) {
-    response.cookie('Authentication', '', {
-      httpOnly: true,
-      expires: new Date(),
-    });
+  async login(user: User) {
+    const { accessToken, refreshToken } = await this.getTokens(user);
+    return { accessToken, refreshToken, user: new UserResponseDto(user) };
+  }
+
+  async refresh(user: any) {
+    const { accessToken } = await this.getTokens(user);
+    return { accessToken };
   }
 }

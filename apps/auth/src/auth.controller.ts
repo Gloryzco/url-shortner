@@ -1,9 +1,7 @@
-import { Controller, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
+import { Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './current-user.decorator';
-import JwtAuthGuard from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { User } from './users/schemas/user.schema';
 import {
@@ -16,6 +14,8 @@ import {
 import { ResponseFormat } from '@app/common';
 import { UserLoginDto } from './dtos';
 import { LoginResponseDto } from './dtos/login-response.dto';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import JwtAuthGuard from './guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -24,19 +24,14 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @ApiOperation({ summary: 'User login' })
   @ApiBody({ type: UserLoginDto })
   @ApiOkResponse({
     description: 'User successfully logged in',
     type: LoginResponseDto,
   })
-  @ApiOperation({ summary: 'User login' })
-  @ApiOkResponse({ description: 'User successfully logged in', type: User })
-  async login(
-    @CurrentUser() user: User,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const loginResult = await this.authService.login(user, res);
-
+  async login(@CurrentUser() user: User) {
+    const loginResult = await this.authService.login(user);
     return ResponseFormat.success(
       HttpStatus.OK,
       'Login successful',
@@ -44,11 +39,31 @@ export class AuthController {
     );
   }
 
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiOkResponse({
+    description: 'Access token successfully refreshed',
+    type: LoginResponseDto,
+  })
+  async refresh(@CurrentUser() user: User) {
+    const tokens = await this.authService.refresh(user);
+    return ResponseFormat.success(
+      HttpStatus.OK,
+      'Token refreshed successfully',
+      tokens,
+    );
+  }
+
   @UseGuards(JwtAuthGuard)
   @MessagePattern('validate_user')
-  @ApiOperation({ summary: 'Validate JWT and return user' })
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'User validated successfully', type: User })
+  @ApiOperation({ summary: 'Validate JWT and return user' })
+  @ApiOkResponse({
+    description: 'User validated successfully',
+    type: User,
+  })
   validateUser(@CurrentUser() user: User) {
     return user;
   }
