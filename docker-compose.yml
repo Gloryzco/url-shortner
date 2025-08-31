@@ -13,17 +13,9 @@ services:
       - ./apps/auth/.env
     depends_on:
       - mongodb-primary
-      - rabbitmq
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    platform: ${DOCKER_PLATFORM:-linux/arm64/v8}
-    ports:
-      - "5672:5672"
-      - "15672:15672"
 
   url-shortener:
     build:
@@ -37,7 +29,6 @@ services:
       - ./apps/url-shortener/.env
     depends_on:
       - mongodb-primary
-      - rabbitmq
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

@@ -5,8 +5,12 @@ import * as Joi from 'joi';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from './users/users.module';
-import { DatabaseModule } from '@app/common';
-import { LocalStrategy, JwtStrategy, JwtRefreshStrategy } from './strategies';
+import {
+  DatabaseModule,
+  JwtRefreshStrategy,
+  JwtStrategy,
+  LocalStrategy,
+} from '@app/common';
 
 @Module({
   imports: [
@@ -28,7 +32,7 @@ import { LocalStrategy, JwtStrategy, JwtRefreshStrategy } from './strategies';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: `${configService.get('JWT_EXPIRATION')}s`,
+          expiresIn: `${configService.get('JWT_EXPIRATION')}`,
         },
       }),
       inject: [ConfigService],

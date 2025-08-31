@@ -16,15 +16,19 @@ export class AuthService {
     const payload = { sub: user._id.toString(), email: user.email };
 
     this.logger.log('payload: ', JSON.stringify(payload));
+    this.logger.log(
+      'exiresIn: ',
+      JSON.stringify(this.configService.get<string>('JWT_EXPIRATION')),
+    );
+
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_EXPIRATION') || '15m',
+      expiresIn: this.configService.get<string>('JWT_EXPIRATION'),
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn:
-        this.configService.get<string>('JWT_REFRESH_EXPIRATION') || '7d',
+      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRATION'),
     });
 
     return { accessToken, refreshToken };

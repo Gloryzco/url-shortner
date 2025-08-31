@@ -1,8 +1,7 @@
 import { Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-import { CurrentUser } from './current-user.decorator';
-import { LocalAuthGuard } from './guards/local-auth.guard';
+
 import { User } from './users/schemas/user.schema';
 import {
   ApiBearerAuth,
@@ -11,11 +10,15 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseFormat } from '@app/common';
-import { UserLoginDto } from './dtos';
+import {
+  CurrentUser,
+  LocalAuthGuard,
+  RefreshTokenGuard,
+  ResponseFormat,
+} from '@app/common';
+import { RefreshResponseDto, UserLoginDto } from './dtos';
 import { LoginResponseDto } from './dtos/login-response.dto';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
-import JwtAuthGuard from './guards/jwt-auth.guard';
+import JwtAuthGuard from '@app/common/auth/src/guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,7 +48,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiOkResponse({
     description: 'Access token successfully refreshed',
-    type: LoginResponseDto,
+    type: RefreshResponseDto,
   })
   async refresh(@CurrentUser() user: User) {
     const tokens = await this.authService.refresh(user);
