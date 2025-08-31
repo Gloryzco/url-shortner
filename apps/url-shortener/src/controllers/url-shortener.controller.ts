@@ -7,7 +7,6 @@ import {
   NotFoundException,
   HttpStatus,
 } from '@nestjs/common';
-
 import {
   ApiTags,
   ApiOperation,
@@ -16,6 +15,7 @@ import {
   ApiOkResponse,
   ApiNotFoundResponse,
   ApiExtraModels,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ResponseFormat } from '@app/common';
 import { ConfigService } from '@nestjs/config';
@@ -23,6 +23,7 @@ import { UrlShortenerResponseDto, CreateShortUrlDto } from '../dtos';
 import { UrlShortenerService } from '../services';
 
 @ApiTags('URLs')
+@ApiBearerAuth()
 @ApiExtraModels(UrlShortenerResponseDto)
 @Controller('urls')
 export class UrlShortenerController {

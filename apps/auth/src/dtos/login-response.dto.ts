@@ -6,14 +6,28 @@ export class LoginResponseDto {
   readonly accessToken: string;
 
   @ApiProperty()
-  readonly expiresAt: Date;
+  readonly accessTokenExpiresAt: Date;
+
+  @ApiProperty()
+  readonly refreshToken: string;
+
+  @ApiProperty()
+  readonly refreshTokenExpiresAt: Date;
 
   @ApiProperty()
   readonly user: UserResponseDto;
 
-  constructor(token: string, expiresAt: Date, user: UserResponseDto) {
-    this.accessToken = token;
-    this.expiresAt = expiresAt;
+  constructor(
+    accessToken: string,
+    accessTokenExpiresAt: Date,
+    refreshToken: string,
+    refreshTokenExpiresAt: Date,
+    user: UserResponseDto,
+  ) {
+    this.accessToken = accessToken;
+    this.accessTokenExpiresAt = accessTokenExpiresAt;
+    this.refreshToken = refreshToken;
+    this.refreshTokenExpiresAt = refreshTokenExpiresAt;
     this.user = user;
   }
 }
