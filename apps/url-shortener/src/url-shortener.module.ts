@@ -3,11 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UrlShortener, UrlShortenerSchema } from './schema';
-import { DatabaseModule, JwtAuthMiddleware } from '@app/common';
+import { DatabaseModule } from '@app/common';
 import { UrlShortenerService } from './services';
 import { UrlShortnerRepository } from './url-shortner.repository';
 import { UrlShortenerController, RedirectController } from './controllers';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtAuthMiddleware } from '@app/common/middlewares';
+import { RateLimitMiddleware } from './middlewares';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { JwtModule } from '@nestjs/jwt';
 })
 export class UrlShortenerModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtAuthMiddleware).forRoutes(UrlShortenerController);
+    consumer
+      .apply(RateLimitMiddleware, JwtAuthMiddleware)
+      .forRoutes(UrlShortenerController);
   }
 }

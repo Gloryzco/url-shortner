@@ -1,4 +1,3 @@
-# ---------- Development ----------
   FROM node:18-alpine AS development
 
   WORKDIR /usr/src/app
@@ -12,7 +11,6 @@
   
   RUN pnpm run build auth
   
-  # ---------- Production ----------
   FROM node:18-alpine AS production
   
   ARG NODE_ENV=production
