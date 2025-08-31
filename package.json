@@ -86,6 +86,7 @@
   },
   "jest": {
     "moduleFileExtensions": [
+      "tsx",
       "js",
       "json",
       "ts"
@@ -105,9 +106,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^libs/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^libs/database(|/.*)$": "<rootDir>/libs/database/src/$1",
-      "^libs/dtos(|/.*)$": "<rootDir>/libs/dtos/src/$1"
+      "^@app/common$": "<rootDir>/libs/common/src",
+      "^@app/common/(.*)$": "<rootDir>/libs/common/src/$1"
     }
   }
 }

@@ -7,6 +7,7 @@ import { UserResponseDto } from './users/dto/use-created-response.dto';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
@@ -21,8 +22,6 @@ export class AuthService {
     const refreshTokenExpiresIn = this.configService.get<string>(
       'JWT_REFRESH_EXPIRATION',
     );
-
-    console.log({ accessTokenExpiresIn, refreshTokenExpiresIn });
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
@@ -56,6 +55,7 @@ export class AuthService {
       accessTokenExpiresAt,
       refreshTokenExpiresAt,
     } = await this.getTokens(user);
+
     return {
       accessToken,
       refreshToken,
@@ -65,12 +65,12 @@ export class AuthService {
     };
   }
 
-  async refresh(user: any) {
+  async refresh(user: User) {
     const { accessToken } = await this.getTokens(user);
     return { accessToken };
   }
 
-  msToMillis(str: string) {
+  msToMillis(this: void, str: string) {
     const unit = str.slice(-1);
     const value = parseInt(str.slice(0, -1));
     switch (unit) {

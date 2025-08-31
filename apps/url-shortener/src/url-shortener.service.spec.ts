@@ -4,7 +4,7 @@ import { UrlShortenerService } from './services';
 import { UrlShortnerRepository } from './url-shortner.repository';
 
 jest.mock('@app/common', () => ({
-  encodeBase62: jest.fn((num: number) => `short${num}`),
+  encodeBase62: jest.fn(() => `yHK7jd`),
 }));
 
 describe('UrlShortenerService', () => {
@@ -30,13 +30,14 @@ describe('UrlShortenerService', () => {
 
   describe('create', () => {
     it('should create a short URL and return updated entity', async () => {
-      const dto = { originalUrl: 'https://example.com' };
+      const dto = { originalUrl: 'https://github.com/Gloryzco/url-shortner' };
       const mockCreated = {
         _id: { toString: () => '0123456789abcdef' },
         originalUrl: dto.originalUrl,
         clicks: 0,
       };
-      const mockUpdated = { ...mockCreated, shortCode: 'short19088743' };
+      const shortCode = 'yHK7jd';
+      const mockUpdated = { ...mockCreated, shortCode };
 
       repository.create.mockResolvedValue(mockCreated);
       repository.findOneAndUpdate.mockResolvedValue(mockUpdated);
@@ -49,7 +50,7 @@ describe('UrlShortenerService', () => {
       });
       expect(repository.findOneAndUpdate).toHaveBeenCalledWith(
         { _id: mockCreated._id },
-        { shortCode: 'short19088743' },
+        { shortCode },
       );
       expect(result).toEqual(mockUpdated);
     });
@@ -59,7 +60,7 @@ describe('UrlShortenerService', () => {
     it('should return URL if found', async () => {
       const mockUrl = {
         shortCode: 'abc123',
-        originalUrl: 'https://example.com',
+        originalUrl: 'https://google.com',
       };
       repository.findOne.mockResolvedValue(mockUrl);
 

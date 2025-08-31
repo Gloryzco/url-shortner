@@ -13,6 +13,10 @@ import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiConflictResponse,
+  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiExtraModels,
   ApiBearerAuth,
@@ -35,7 +39,14 @@ export class UrlShortenerController {
   @Post()
   @ApiOperation({ summary: 'Create a new short URL' })
   @ApiBody({ type: CreateShortUrlDto })
-  @ApiCreatedResponse({ type: UrlShortenerResponseDto })
+  @ApiCreatedResponse({
+    type: UrlShortenerResponseDto,
+    description: 'Short URL created successfully',
+  })
+  @ApiBadRequestResponse({ description: 'Invalid request payload' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized request' })
+  @ApiConflictResponse({ description: 'Short code already exists' })
+  @ApiInternalServerErrorResponse({ description: 'Unexpected server error' })
   async createShortUrl(@Body() dto: CreateShortUrlDto) {
     const entity = await this.urlShortenerService.create(dto);
     const baseUrl = this.getBaseUrl();
@@ -50,8 +61,13 @@ export class UrlShortenerController {
 
   @Get(':shortCode')
   @ApiOperation({ summary: 'Get a short URL by code' })
-  @ApiOkResponse({ type: UrlShortenerResponseDto })
+  @ApiOkResponse({
+    type: UrlShortenerResponseDto,
+    description: 'Short URL fetched successfully',
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized request' })
   @ApiNotFoundResponse({ description: 'Short URL not found' })
+  @ApiInternalServerErrorResponse({ description: 'Unexpected server error' })
   async getShortUrl(@Param('shortCode') shortCode: string) {
     const entity = await this.urlShortenerService.findByCode(shortCode);
     if (!entity) throw new NotFoundException('Short URL not found');

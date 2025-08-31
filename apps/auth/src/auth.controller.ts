@@ -1,7 +1,6 @@
 import { Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
-
 import { User } from './users/schemas/user.schema';
 import {
   ApiBearerAuth,
@@ -9,6 +8,10 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
 import {
   CurrentUser,
@@ -33,6 +36,9 @@ export class AuthController {
     description: 'User successfully logged in',
     type: LoginResponseDto,
   })
+  @ApiBadRequestResponse({ description: 'Invalid request payload' })
+  @ApiUnauthorizedResponse({ description: 'Invalid email or password' })
+  @ApiInternalServerErrorResponse({ description: 'Unexpected server error' })
   async login(@CurrentUser() user: User) {
     const loginResult = await this.authService.login(user);
     return ResponseFormat.success(
@@ -50,6 +56,9 @@ export class AuthController {
     description: 'Access token successfully refreshed',
     type: RefreshResponseDto,
   })
+  @ApiBadRequestResponse({ description: 'Invalid refresh token request' })
+  @ApiUnauthorizedResponse({ description: 'Invalid or expired refresh token' })
+  @ApiInternalServerErrorResponse({ description: 'Unexpected server error' })
   async refresh(@CurrentUser() user: User) {
     const tokens = await this.authService.refresh(user);
     return ResponseFormat.success(
@@ -67,6 +76,10 @@ export class AuthController {
     description: 'User validated successfully',
     type: User,
   })
+  @ApiBadRequestResponse({ description: 'Invalid validation request' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid JWT' })
+  @ApiForbiddenResponse({ description: 'User does not have permission' })
+  @ApiInternalServerErrorResponse({ description: 'Unexpected server error' })
   validateUser(@CurrentUser() user: User) {
     return user;
   }
