@@ -25,6 +25,7 @@ import {
         JWT_REFRESH_EXPIRATION: Joi.string().required(),
         MONGO_URI: Joi.string().required(),
         NODE_ENV: Joi.string().required(),
+        APP_BASE_URL: Joi.string().required(),
       }),
       envFilePath: './apps/auth/.env',
     }),

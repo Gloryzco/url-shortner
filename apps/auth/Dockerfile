@@ -1,30 +1,23 @@
-  FROM node:18-alpine AS development
+  FROM node:18-alpine AS base
 
   WORKDIR /usr/src/app
   
   COPY package.json pnpm-lock.yaml ./
-  
-  RUN npm install -g pnpm
-  RUN pnpm install
-  
+
+  RUN npm install -g pnpm && pnpm install
+
   COPY . .
-  
+
+  FROM base AS development
   RUN pnpm run build auth
-  
+
   FROM node:18-alpine AS production
-  
-  ARG NODE_ENV=production
-  ENV NODE_ENV=${NODE_ENV}
-  
   WORKDIR /usr/src/app
-  
+
   COPY package.json pnpm-lock.yaml ./
-  
-  RUN npm install -g pnpm
-  RUN pnpm install --only=production
-  
-  COPY . .
-  
+
+  RUN npm install -g pnpm && pnpm install --prod
+
   COPY --from=development /usr/src/app/dist ./dist
   
   CMD ["node", "dist/apps/auth/main"]

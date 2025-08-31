@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Controller, HttpStatus, Post, UseGuards, HttpCode } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { AuthService } from './auth.service';
 import { User } from './users/schemas/user.schema';
@@ -30,6 +30,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'User login' })
   @ApiBody({ type: UserLoginDto })
   @ApiOkResponse({
@@ -50,6 +51,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiOkResponse({

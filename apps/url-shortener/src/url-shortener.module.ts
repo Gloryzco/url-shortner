@@ -8,11 +8,17 @@ import { UrlShortenerService } from './services';
 import { UrlShortnerRepository } from './url-shortner.repository';
 import { UrlShortenerController, RedirectController } from './controllers';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtAuthMiddleware } from '@app/common/middlewares';
-import { RateLimitMiddleware } from './middlewares';
+import {
+  JwtAuthMiddleware,
+  RateLimitMiddleware,
+} from '@app/common/middlewares';
 
 @Module({
   imports: [
+    DatabaseModule,
+    MongooseModule.forFeature([
+      { name: UrlShortener.name, schema: UrlShortenerSchema },
+    ]),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
@@ -22,12 +28,9 @@ import { RateLimitMiddleware } from './middlewares';
         APP_BASE_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
       }),
-      envFilePath: `./apps/url-shortner/.env`,
+      envFilePath: `./apps/url-shortener/.env`,
     }),
-    DatabaseModule,
-    MongooseModule.forFeature([
-      { name: UrlShortener.name, schema: UrlShortenerSchema },
-    ]),
+
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({

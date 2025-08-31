@@ -35,9 +35,8 @@ A simple URL Shortener microservice built with **NestJS**, supporting JWT authen
 The project is a **monorepo** containing:
 
 - **Auth Service** – Handles user authentication and JWT issuance.
-- **URL Shortener Service** – Handles URL creation, redirection, click tracking, and short code generation.
-
-Shared utilities (DTOs, guards, interceptors, filters) are located in **`libs/common`**.
+- **URL Shortener Service** – Handles URL creation, redirection, click tracking, and short code generation.  
+  Shared utilities (DTOs, guards, interceptors, filters) are located in **`libs/common`**.
 
 ### Design Decisions
 
@@ -51,7 +50,7 @@ Shared utilities (DTOs, guards, interceptors, filters) are located in **`libs/co
 
 3. **Rate Limiting**
    - Protects critical URL creation routes from abuse.
-   - Implemented using NestJS ThrottlerGuard.
+   - Implemented using NestJS `ThrottlerGuard`.
 
 4. **Repository Pattern**
    - Separates data access from business logic.
@@ -66,16 +65,49 @@ Shared utilities (DTOs, guards, interceptors, filters) are located in **`libs/co
 
 7. **Testing with Jest**
    - Repository and utility mocking allows isolated unit tests.
-   - Ensures reliability without depending on DB state.
+   - Ensures reliability without depending on database state.
 
 8. **Robust Error Handling**
    - Global exception filter captures all errors.
-   - Response formatter ensures consistent API responses:
+   - Response formatter ensures consistent API responses with the structure:
+   ```
+   {
+     "status": "success | error",
+     "message": "description",
+     "data": { ... }
+   }
+   ```
 
-```json
-{
-  "status": "success | error",
-  "message": "description",
-  "data": { ... }
-}
-```
+---
+
+## Running the Application
+
+### Locally
+> Instructions: Duplicate the `.env.example` files in both `auth` and `url-shortener` services and rename them to `.env` before running the application and use your mongo connection string..
+
+> ---
+pnpm install <br>
+(Run the Auth service)
+pnpm run start:dev auth <br>
+(Run the Url shortener service)
+pnpm run start:dev url-shortener
+
+### Running Tests
+
+pnpm test
+
+### With Docker
+> Instructions: Duplicate the `.env.example` files in both `auth` and `url-shortener` services and rename them to `.env` before running the application. No changes needed.
+
+---
+docker-compose build <br>
+docker-compose up
+
+
+## Reason for Our Architecture
+
+The chosen architecture optimizes for **scalability, maintainability, and developer efficiency**. By using a **monorepo**, code reuse is maximized, and dependencies are easier to manage across services. Employing **JWT** for authentication offers stateless, scalable user sessions without centralized storage, a crucial aspect for horizontally scaled microservices. The **repository pattern** cleanly separates business logic from data access, enhancing testability and easing future substitutions or database migrations. Rate limiting safeguards core APIs from abuse without adding excessive complexity, and utilizing deterministic short code generation ensures URL uniqueness and consistency without race conditions.
+
+Furthermore, **robust error handling** and **testing** maximize system reliability and developer confidence when making changes. Lastly, containerization with **Docker** facilitates quick deployment and consistency across environments, meeting modern microservice deployment standards.
+
+This architecture balances practical production requirements with clean, modular code suited for team collaboration and future growth.
